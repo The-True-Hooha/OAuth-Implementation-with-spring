@@ -1,6 +1,10 @@
 package com.github.TheTrueHooha.OAuth.Security.Implementation.Configuration;
 
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +21,15 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
 @Configuration(proxyBeanMethods = false)
@@ -50,5 +61,53 @@ public class OAuthAuthorizationConfiguration {
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
         return new InMemoryRegisteredClientRepository(registeredClient);
+    }
+
+    //OAuth sign-in key tokens
+    @Bean
+    public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
+        RSAKey rsaKey = generateRsaKey();
+        JWKSet jwkSet = new JWKSet(rsaKey);
+        return ((jwkSelector, securityContext) -> jwkSelector.select(jwkSet));
+    }
+
+    //method that defines the generated RSA key
+    private static RSAKey generateRsaKey() throws NoSuchAlgorithmException {
+        KeyPair keyPair = generateRsaKeyPair();
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
+        return new RSAKey.Builder(rsaPublicKey)
+                .privateKey(rsaPrivateKey)
+                .keyID(UUID.randomUUID().toString())
+                .build();
+    }
+
+    //method that defines the generatedRsaKeyPair
+    private static KeyPair generateRsaKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+   //inserting the KeyPair generatedRsaKeyPair in a try catch method
+    /*
+    private static KeyPair generatedKeyPair() {
+    KeyPair keyPair;
+    try {
+       KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+       keyPairGenerator.initialize(2048);
+       keyPair = keyPairGenerator.generateKeyPair();
+       } catch (Exception e) {
+       throw new IllegalStateException(e);
+       }
+       return keyPair;
+    }
+     */
+
+    @Bean
+    public ProviderSettings providerSettings() {
+        return ProviderSettings.builder()
+                .issuer("http://auth-server:9000")
+                .build();
     }
 }
