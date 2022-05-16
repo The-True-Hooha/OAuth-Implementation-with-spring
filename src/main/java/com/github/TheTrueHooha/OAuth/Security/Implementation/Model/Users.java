@@ -5,10 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -27,7 +24,12 @@ public class Users {
 
     private String location;
 
+    @Column (length = 40)
     private String password;
 
     private String gender;
+
+    private String role;
+
+    private Boolean isEnabled = false;
 }
