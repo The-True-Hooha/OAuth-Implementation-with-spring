@@ -44,12 +44,11 @@ public class OAuthAuthorizationConfiguration {
                 .authorizationGrantType(AuthorizationGrantType.PASSWORD)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://127.0.0.1:9000/api/v1/login/user/api-client-oidc")
-                .redirectUri("http://127.0.0.1:9000/authorized")
+                .redirectUri("http://127.0.0.1:9000/api/v1/user/authorized")
                 .scope(OidcScopes.OPENID)
                 .scope("api.read")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
-
         return new InMemoryRegisteredClientRepository(registeredClient);
     }
 }
