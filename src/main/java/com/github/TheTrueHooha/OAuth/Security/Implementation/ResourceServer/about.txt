@@ -1,0 +1,4 @@
+The resource server indicates the source for the Oauth2 client
+Add dependency to the pom.xml
+Configure security module with the spring-webflux and reactor-netty dependency utilize the auth end point
+Add the resource config to your client module
