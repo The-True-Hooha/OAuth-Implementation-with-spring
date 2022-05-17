@@ -1,0 +1,25 @@
+#YAML configuration for OAuth register client configuration (to be located in your applications.yml file)
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          api-client-oidc:
+            provider: spring
+            client-id: spring-api-client
+            client-secret: password
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://127.0.0.1:9000/api/v1/login/user/api-client-oidc"
+            scope: openid
+            client-name: api-client-oidc
+          api-client-authorization-code:
+            provider: spring
+            client-id: spring-api-client
+            client-secret: password
+            authorization-grant-type: authorization-code
+            redirect-uri: "http://127.0.0.1:9000/api/v1/user/authorized"
+            scope: api.read
+            client-name: api-client-authorization-code
+        provider:
+              spring:
+                issuer-uri: http://auth-server:9000
